@@ -19,13 +19,15 @@ namespace CefSharp.MinimalExample.WinForms
     public partial class BrowserForm : Form
     {
         private readonly ChromiumWebBrowser browser;
-        private string subDomain = "vip3";
+        private string subDomain = "low5";
+        private bool loginStatus;
+
 
         public BrowserForm()
         {
             InitializeComponent();
 
-            Text = "CefSharp";
+            Text = "Travian bot";
             //WindowState = FormWindowState.Maximized;
 
             textBoxLogs.Text += TraceLine("---------- Travian bot v0.1a ----------");
@@ -97,22 +99,47 @@ namespace CefSharp.MinimalExample.WinForms
 
             // ++++++++++++++++++++++++++++++++++++++
             //Wait for the page to finish loading
+
             if (args.IsLoading == false)
             {
                 browser.GetSourceAsync().ContinueWith(taskHtml =>
                 {
                     var html = taskHtml.Result;
-                    var regex = new Regex($@".*Woodcutter level (\S)");
-                    if (regex.IsMatch(html))
+                    var regexWoodCutterLevel = new Regex($@".*Woodcutter level (\S)");
+                    if (regexWoodCutterLevel.IsMatch(html))
                     {
-                        var myCapturedText = regex.Match(html).Groups[1].Value;
-                        textBoxLogs.Text += TraceLine("This is my captured text: " + myCapturedText);
+                        var myCapturedText = regexWoodCutterLevel.Match(html).Groups[1].Value;
+                        textBoxLogs.Text += TraceLine("Woodcutter level is: " + myCapturedText);
                     }
                     else
                     {
                         textBoxLogs.Text += TraceLine("Couldn't retrieve resource levels");
                     }
+
+                    var regexLogin = new Regex("[login]");
+                    if (regexLogin.IsMatch(html))
+                    {
+                        loginStatus = false;
+                    }
+
+                    loginStatus = true;
+
+                    var regexTimer = new Regex(
+                        ".*<div class=\"inlineIcon duration\">\r\n                        <i class=\"clock_medium\" alt=\"duration\"></i>\r\n                        (......)                    </div>");
+                    if (regexTimer.IsMatch(html))
+                    {
+                        var capturedText = regexTimer.Match(html).Groups[1].Value;
+                        textBoxLogs.Text += TraceLine("Timer is: " + capturedText);
+                    }
                 });
+
+                if (!loginStatus)
+                {
+                    textBoxLogs.Text += TraceLine("Logging in...");
+                    var login = new Login(browser);
+                    login.LoginUser();
+                    loginStatus = true;
+                }
 
                 if (browser.Address.Contains("https://" + subDomain + ".ttwars.com/dorf1.php"))
                 {
