@@ -125,7 +125,7 @@ namespace CefSharp.MinimalExample.WinForms
                     loginStatus = true;
 
                     var regexTimer = new Regex(
-                        ".*<div class=\"inlineIcon duration\">\r\n                        <i class=\"clock_medium\" alt=\"duration\"></i>\r\n                        (......)                    </div>");
+                        "(^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$)");
                     if (regexTimer.IsMatch(html))
                     {
                         var capturedText = regexTimer.Match(html).Groups[1].Value;
