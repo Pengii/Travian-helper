@@ -71,9 +71,14 @@
     <Compile Include="BrowserForm.Designer.cs">
       <DependentUpon>BrowserForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Clay.cs" />
     <Compile Include="Controls\ControlExtensions.cs" />
+    <Compile Include="Crop.cs" />
+    <Compile Include="IResource.cs" />
+    <Compile Include="Iron.cs" />
     <Compile Include="LifeSpanHandler.cs" />
     <Compile Include="Login.cs" />
+    <Compile Include="ParseHtml.cs" />
     <Compile Include="Program.cs">
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -82,6 +87,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Wood.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="BrowserForm.resx">

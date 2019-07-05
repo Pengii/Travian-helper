@@ -19,9 +19,7 @@ namespace CefSharp.MinimalExample.WinForms
     public partial class BrowserForm : Form
     {
         private readonly ChromiumWebBrowser browser;
-        private string subDomain = "low5";
-        private bool loginStatus;
-
+        private string subDomain = "unl4";
 
         public BrowserForm()
         {
@@ -50,10 +48,24 @@ namespace CefSharp.MinimalExample.WinForms
             browser.TitleChanged += OnBrowserTitleChanged;
             browser.AddressChanged += OnBrowserAddressChanged;
 
+            textBoxLogs.TextChanged += OnTextChanged;
+
             var bitness = Environment.Is64BitProcess ? "x64" : "x86";
             var version =
                 $"Chromium: {Cef.ChromiumVersion}, CEF: {Cef.CefVersion}, CefSharp: {Cef.CefSharpVersion}, Environment: {bitness}";
             DisplayOutput(version);
+        }
+
+        private void OnTextChanged(object sender, EventArgs e)
+        {
+            textBoxLogs.SelectionStart = textBoxLogs.Text.Length;
+            textBoxLogs.ScrollToCaret();
+        }
+
+        public sealed override string Text
+        {
+            get { return base.Text; }
+            set { base.Text = value; }
         }
 
         private void LifeSpanPopupRequest(string obj)
@@ -87,8 +99,6 @@ namespace CefSharp.MinimalExample.WinForms
             //this.InvokeOnUiThreadIfRequired(() => linkLabelLogs.Text = args.Value);
         }
 
-        public delegate void InvokeDelegate(string result);
-
         private void OnLoadingStateChanged(object sender, LoadingStateChangedEventArgs args)
         {
             // ++++++++++++++++++++++++++++++++++++++
@@ -102,48 +112,30 @@ namespace CefSharp.MinimalExample.WinForms
 
             if (args.IsLoading == false)
             {
-                browser.GetSourceAsync().ContinueWith(taskHtml =>
+                var task = browser.GetSourceAsync();
+                task.ContinueWith(taskHtml =>
                 {
                     var html = taskHtml.Result;
-                    var regexWoodCutterLevel = new Regex($@".*Woodcutter level (\S)");
-                    if (regexWoodCutterLevel.IsMatch(html))
-                    {
-                        var myCapturedText = regexWoodCutterLevel.Match(html).Groups[1].Value;
-                        textBoxLogs.Text += TraceLine("Woodcutter level is: " + myCapturedText);
-                    }
-                    else
-                    {
-                        textBoxLogs.Text += TraceLine("Couldn't retrieve resource levels");
-                    }
+                    var parseHtml = new ParseHtml(TraceLine, html); // Extracts some useful data
 
                     var regexLogin = new Regex("[login]");
                     if (regexLogin.IsMatch(html))
                     {
-                        loginStatus = false;
+                        textBoxLogs.Text += TraceLine("Logging in...");
+                        var login = new Login(browser);
+                        login.LoginUser();
                     }
 
-                    loginStatus = true;
+                    List<IResource> res = parseHtml.ResInfo();
 
-                    var regexTimer = new Regex(
-                        "(^(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)$)");
-                    if (regexTimer.IsMatch(html))
+                    foreach (var e in res)
                     {
-                        var capturedText = regexTimer.Match(html).Groups[1].Value;
-                        textBoxLogs.Text += TraceLine("Timer is: " + capturedText);
+                        textBoxLogs.Text += TraceLine(e.GetType().Name + " - Index: " + e.Index + " - Level: " + e.ResLevel);
                     }
-                });
-
-                if (!loginStatus)
-                {
-                    textBoxLogs.Text += TraceLine("Logging in...");
-                    var login = new Login(browser);
-                    login.LoginUser();
-                    loginStatus = true;
-                }
+                }, TaskScheduler.Default);
 
                 if (browser.Address.Contains("https://" + subDomain + ".ttwars.com/dorf1.php"))
                 {
-                    textBoxLogs.Text += TraceLine("You are at the village!");
                     browser.ExecuteScriptAsyncWhenPageLoaded("var element = document.getElementById(\"rx\").children;" +
                                                              "\r\nelement[3].click();");
                 }
@@ -174,11 +166,6 @@ namespace CefSharp.MinimalExample.WinForms
             //SetCanGoForward(args.CanGoForward);
 
             //this.InvokeOnUiThreadIfRequired(() => SetIsLoading(!args.CanReload));
-        }
-
-        private void MainAsync()
-        {
-
         }
 
         private void InvokeMethod(string result)

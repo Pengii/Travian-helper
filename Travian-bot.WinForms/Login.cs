@@ -20,9 +20,7 @@ namespace CefSharp.MinimalExample.WinForms
         public void LoginUser()
         {
             _browser.ExecuteScriptAsyncWhenPageLoaded("document.forms[\"login\"].elements[\"user\"].value=\"Saisama\";");
-            Thread.Sleep(2000);
             _browser.ExecuteScriptAsyncWhenPageLoaded("document.forms[\"login\"].elements[\"pw\"].value=\"a72b84zx\";");
-            Thread.Sleep(2000);
             _browser.ExecuteScriptAsyncWhenPageLoaded("document.forms[\"login\"].submit();");
         }
     }
