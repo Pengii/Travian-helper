@@ -5,48 +5,61 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CefSharp.MinimalExample.WinForms.Controls;
+using CefSharp.MinimalExample.WinForms.Properties;
 using CefSharp.WinForms;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CefSharp.MinimalExample.WinForms
 {
     public partial class BrowserForm : Form
     {
-        private readonly ChromiumWebBrowser browser;
-        private string subDomain = "unl4";
+        private readonly ChromiumWebBrowser _browser;
+        private string _subDomain = "unl4";
+        private bool _started = false;
+        private bool _autoBuild = Settings.Default.AutoBuild;
+        private bool _loggedIn = false;
+        private bool _dataGathered = false;
+        private int _maximumLevel = 30;
+        private int _serverSpeed = 80000;
 
         public BrowserForm()
         {
             InitializeComponent();
 
             Text = "Travian bot";
+
+            textBoxUser.Text = Settings.Default.Username;
+            textBoxPw.Text = Settings.Default.Password;
+            autoBuild.Checked = Settings.Default.AutoBuild;
+
             //WindowState = FormWindowState.Maximized;
 
             textBoxLogs.Text += TraceLine("---------- Travian bot v0.1a ----------");
 
-            browser = new ChromiumWebBrowser("https://" + subDomain + ".ttwars.com/dorf1.php")
+            _browser = new ChromiumWebBrowser("https://" + _subDomain + ".ttwars.com/dorf1.php")
             {
                 Dock = DockStyle.Fill,
             };
             
             LifespanHandler lifeSpan = new LifespanHandler();
-            browser.LifeSpanHandler = lifeSpan;
+            _browser.LifeSpanHandler = lifeSpan;
             lifeSpan.PopupRequest += LifeSpanPopupRequest;
 
-            toolStripContainer.ContentPanel.Controls.Add(browser);
+            toolStripContainer.ContentPanel.Controls.Add(_browser);
 
-            browser.IsBrowserInitializedChanged += OnIsBrowserInitializedChanged;
-            browser.LoadingStateChanged += OnLoadingStateChanged;
-            browser.ConsoleMessage += OnBrowserConsoleMessage;
-            browser.StatusMessage += OnBrowserStatusMessage;
-            browser.TitleChanged += OnBrowserTitleChanged;
-            browser.AddressChanged += OnBrowserAddressChanged;
+            _browser.IsBrowserInitializedChanged += OnIsBrowserInitializedChanged;
+            _browser.LoadingStateChanged += OnLoadingStateChanged;
+            _browser.ConsoleMessage += OnBrowserConsoleMessage;
+            _browser.StatusMessage += OnBrowserStatusMessage;
+            _browser.TitleChanged += OnBrowserTitleChanged;
+            _browser.AddressChanged += OnBrowserAddressChanged;
 
             textBoxLogs.TextChanged += OnTextChanged;
 
@@ -76,7 +89,7 @@ namespace CefSharp.MinimalExample.WinForms
         private void PopupRequestHandler(string url)
         {
             //open pop up in local browser form
-            browser.Load(url);
+            _browser.Load(url);
         }
 
         private void OnIsBrowserInitializedChanged(object sender, IsBrowserInitializedChangedEventArgs e)
@@ -101,65 +114,11 @@ namespace CefSharp.MinimalExample.WinForms
 
         private void OnLoadingStateChanged(object sender, LoadingStateChangedEventArgs args)
         {
-            // ++++++++++++++++++++++++++++++++++++++
-
-            // URL den yaz programi. 
-            // https://vip3.ttwars.com/build.php?id=2&fastUP=0
-            // id degisiyor sadece
-
-            // ++++++++++++++++++++++++++++++++++++++
             //Wait for the page to finish loading
 
             if (args.IsLoading == false)
             {
-                var task = browser.GetSourceAsync();
-                task.ContinueWith(taskHtml =>
-                {
-                    var html = taskHtml.Result;
-                    var parseHtml = new ParseHtml(TraceLine, html); // Extracts some useful data
-
-                    var regexLogin = new Regex("[login]");
-                    if (regexLogin.IsMatch(html))
-                    {
-                        textBoxLogs.Text += TraceLine("Logging in...");
-                        var login = new Login(browser);
-                        login.LoginUser();
-                    }
-
-                    List<IResource> res = parseHtml.ResInfo();
-
-                    foreach (var e in res)
-                    {
-                        textBoxLogs.Text += TraceLine(e.GetType().Name + " - Index: " + e.Index + " - Level: " + e.ResLevel);
-                    }
-                }, TaskScheduler.Default);
-
-                if (browser.Address.Contains("https://" + subDomain + ".ttwars.com/dorf1.php"))
-                {
-                    browser.ExecuteScriptAsyncWhenPageLoaded("var element = document.getElementById(\"rx\").children;" +
-                                                             "\r\nelement[3].click();");
-                }
-                else if (browser.Address.Contains("https://" + subDomain + ".ttwars.com/build.php?id="))
-                {
-                    textBoxLogs.Text += TraceLine("Upgrading!");
-                    browser.ExecuteScriptAsyncWhenPageLoaded(
-                        @"function getElementsByText(text) {
-                    function rec(ele, arr)
-                    {
-                        if (ele.childNodes.length > 0) 
-                            for (var i = 0; i < ele.childNodes.length; i++) 
-                                rec(ele.childNodes[i], arr);
-                        else if (ele.nodeType == Node.TEXT_NODE && 
-                            ele.nodeValue.indexOf(text) != -1) 
-                            arr.push(ele.parentNode);
-                        return arr;
-                    }
-                    return rec(document.body, []);
-                }"
-                        + "\r\nvar item = getElementsByText('Upgrade to level ');"
-                        + "\r\nitem[0].click();");
-                    textBoxLogs.Text += TraceLine("Upgrading...");
-                }
+                StartAsync();
             }
 
             //SetCanGoBack(args.CanGoBack);
@@ -168,26 +127,74 @@ namespace CefSharp.MinimalExample.WinForms
             //this.InvokeOnUiThreadIfRequired(() => SetIsLoading(!args.CanReload));
         }
 
-        private void InvokeMethod(string result)
+        protected void StartAsync()
         {
-            if (result != "")
+            _browser.ExecuteScriptAsync("document.forms[\"login\"].elements[\"user\"].value=\"Saisama\";");
+            _browser.ExecuteScriptAsync("document.forms[\"login\"].elements[\"pw\"].value=\"a72b84zx\";");
+            _browser.ExecuteScriptAsync("document.forms[\"login\"].submit();");
+
+            if (_autoBuild)
             {
-                textBoxLogs.Text += TraceLine("Level: " + result);
+                var upgrade = new Upgrade(_browser, _subDomain);
+
+                var file = File.OpenText(@"resources.json").ReadToEnd();
+                var rsc = JsonConvert.DeserializeObject<List<ResourceField>>(file);
+
+                int index = 0;
+                while (rsc[index].ResLevel < _maximumLevel)
+                {
+                    if (index < 18)
+                    {
+                        upgrade.UpgradeResource();
+                        if (rsc[index].ResLevel == _maximumLevel - 1)
+                        {
+                            upgrade.UpgradeResource();
+                            index++;
+                        }
+                    }
+                }
+                textBoxLogs.Text += TraceLine("All Maximum Level reached!");
             }
             else
             {
-                textBoxLogs.Text += TraceLine("Error while getting the level data");
+                textBoxLogs.Text += TraceLine("Auto build is disabled! Started to creating farm list...");
+                _browser.Load("https://" + _subDomain+ ".ttwars.com/build.php?tt=99&id=39");
+                _browser.ExecuteScriptAsync("document.getElementsByClassName(\"openedClosedSwitch switchClosed\")[0].click();\n");
+                _browser.ExecuteScriptAsync("document.getElementById(\"raidListMarkAll31\").click();\n");
+                _browser.ExecuteScriptAsync("var aTags = document.getElementsByTagName(\"div\");\r\n                var searchText = \"Start raid\";\r\n                var found;\r\n\r\n                for (var i = 0; i < aTags.length; i++)\r\n                {\r\n                    if (aTags[i].textContent == searchText)\r\n                    {\r\n                        found = aTags[i];\r\n                        break;\r\n                    }\r\n                }\r\n                found.click(); ");
             }
 
-            var numberResult = Regex.Match(result, @"\d+").Value;
-            var level = Int32.Parse(numberResult) + 1;
-            while (level < 20)
-            {
-                textBoxLogs.Text += TraceLine("Upgrading Level: " + result);
-                
-                level++;
-            }
         }
+
+        public async void CollectData()
+        {
+            string html = await _browser.GetSourceAsync();
+
+            textBoxLogs.Text += TraceLine("Getting source...");
+
+            var parseHtml = new ParseHtml(TraceLine, html); // Extracts some useful data
+
+            List<ResourceField> res = parseHtml.ResInfo();
+
+            foreach (var element in res)
+            {
+                textBoxLogs.Text +=
+                    TraceLine(element.Type + " - Index: " + element.Index + " - Level: " + element.ResLevel);
+            }
+
+            string strResourceJson = JsonConvert.SerializeObject(res, Formatting.Indented);
+            var settings = new JsonSerializerSettings();
+            settings.TypeNameHandling = TypeNameHandling.Auto;
+
+            string fileName = @"resources.json";
+            if (File.Exists(fileName))
+                File.Delete(fileName);
+            StreamWriter sw = new StreamWriter(@"resources.json");
+            sw.Write(strResourceJson);
+            sw.Dispose();
+        }
+
+
 
         private void OnBrowserTitleChanged(object sender, TitleChangedEventArgs args)
         {
@@ -239,20 +246,12 @@ namespace CefSharp.MinimalExample.WinForms
 
         private void HandleToolStripLayout()
         {
-            //var width = toolStrip1.Width;
-            //foreach (ToolStripItem item in toolStrip1.Items)
-            //{
-            //    if (item != urlTextBox)
-            //    {
-            //        width -= item.Width - item.Margin.Horizontal;
-            //    }
-            //}
-            //urlTextBox.Width = Math.Max(0, width - urlTextBox.Margin.Horizontal - 18);
+            
         }
 
         private void ExitMenuItemClick(object sender, EventArgs e)
         {
-            browser.Dispose();
+            _browser.Dispose();
             Cef.Shutdown();
             Close();
         }
@@ -264,12 +263,12 @@ namespace CefSharp.MinimalExample.WinForms
 
         private void BackButtonClick(object sender, EventArgs e)
         {
-            browser.Back();
+            _browser.Back();
         }
 
         private void ForwardButtonClick(object sender, EventArgs e)
         {
-            browser.Forward();
+            _browser.Forward();
         }
 
         private void UrlTextBoxKeyUp(object sender, KeyEventArgs e)
@@ -286,13 +285,40 @@ namespace CefSharp.MinimalExample.WinForms
         {
             if (Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute))
             {
-                browser.Load(url);
+                _browser.Load(url);
             }
         }
 
         private void ShowDevToolsMenuItemClick(object sender, EventArgs e)
         {
-            browser.ShowDevTools();
+            _browser.ShowDevTools();
+        }
+
+        private void buttonSave_Click(object sender, EventArgs e)
+        {
+            Settings.Default["Username"] = textBoxUser.Text;
+            Settings.Default["Password"] = textBoxPw.Text;
+            Settings.Default["AutoBuild"] = autoBuild.Checked;
+
+            Settings.Default.Save();
+        }
+
+        private void buttonStart_Click(object sender, EventArgs e)
+        {
+            //var login = new Login(_browser);
+            //login.LoginUser();
+
+
+
+
+            //Task task = new Task(StartAsync);
+            //task.Start();
+
+            //textBoxLogs.Text += TraceLine("Collecting data...");
+            //CollectData();
+            //_dataGathered = true;
+
+            _started = true;
         }
     }
 }

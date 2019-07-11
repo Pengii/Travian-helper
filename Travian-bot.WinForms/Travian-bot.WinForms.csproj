@@ -57,6 +57,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -71,11 +74,7 @@
     <Compile Include="BrowserForm.Designer.cs">
       <DependentUpon>BrowserForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Clay.cs" />
     <Compile Include="Controls\ControlExtensions.cs" />
-    <Compile Include="Crop.cs" />
-    <Compile Include="IResource.cs" />
-    <Compile Include="Iron.cs" />
     <Compile Include="LifeSpanHandler.cs" />
     <Compile Include="Login.cs" />
     <Compile Include="ParseHtml.cs" />
@@ -87,7 +86,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Wood.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="ResourceField.cs" />
+    <Compile Include="AllResources.cs" />
+    <Compile Include="Upgrade.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="BrowserForm.resx">
@@ -104,6 +110,10 @@
     <None Include="app.config" />
     <None Include="app.manifest" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Include="Resources\nav_left_green.png" />
   </ItemGroup>
   <ItemGroup>

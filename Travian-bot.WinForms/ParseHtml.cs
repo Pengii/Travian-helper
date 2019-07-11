@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
-using CefSharp.MinimalExample.WinForms.Controls;
-using CefSharp.WinForms;
+
+ /*
+  * TODO:
+  * Implement building times and add intervals.
+  */
 
 namespace CefSharp.MinimalExample.WinForms
 {
@@ -19,14 +20,14 @@ namespace CefSharp.MinimalExample.WinForms
             _html = html;
         }
 
-        public List<IResource> ResInfo()
+        public List<ResourceField> ResInfo()
         {
-            List<IResource> resources = new List<IResource>();
+            List<ResourceField> resources = new List<ResourceField>();
 
-            var woodCutterLevels = Regex.Matches(_html, $@".*Woodcutter level (\S)");
-            var clayPitLevels = Regex.Matches(_html, $@".*Clay Pit level (\S)");
-            var ironMineLevels = Regex.Matches(_html, $@".*Iron Mine level (\S)");
-            var cropLandLevels = Regex.Matches(_html, $@".*Cropland level (\S)");
+            var woodCutterLevels = Regex.Matches(_html, $@".*Woodcutter level (\S.)");
+            var clayPitLevels = Regex.Matches(_html, $@".*Clay Pit level (\S.)");
+            var ironMineLevels = Regex.Matches(_html, $@".*Iron Mine level (\S.)");
+            var cropLandLevels = Regex.Matches(_html, $@".*Cropland level (\S.)");
 
             if (woodCutterLevels.Count > 0 && clayPitLevels.Count > 0 && ironMineLevels.Count > 0 && cropLandLevels.Count > 0)
             {
@@ -43,7 +44,12 @@ namespace CefSharp.MinimalExample.WinForms
                     else if (indexer == 3)
                         index = 17;
 
-                    resources.Add(new Wood(index, int.Parse(m.Groups[1].ToString())));
+                    resources.Add(new ResourceField()
+                    {
+                        Type = "Wood",
+                        Index = index,
+                        ResLevel = int.Parse(m.Groups[1].ToString())
+                    });
                     indexer++;
                 }
 
@@ -58,7 +64,12 @@ namespace CefSharp.MinimalExample.WinForms
                         index = 16;
                     else if (indexer == 3)
                         index = 18;
-                    resources.Add(new Clay(index, int.Parse(m.Groups[1].ToString())));
+                    resources.Add(new ResourceField()
+                    {
+                        Type = "Clay",
+                        Index = index,
+                        ResLevel = int.Parse(m.Groups[1].ToString())
+                    });
                     indexer++;
                 }
 
@@ -73,7 +84,12 @@ namespace CefSharp.MinimalExample.WinForms
                         index = 10;
                     else if (indexer == 3)
                         index = 11;
-                    resources.Add(new Iron(index, int.Parse(m.Groups[1].ToString())));
+                    resources.Add(new ResourceField()
+                    {
+                        Type = "Iron",
+                        Index = index,
+                        ResLevel = int.Parse(m.Groups[1].ToString())
+                    });
                     indexer++;
                 }
 
@@ -92,10 +108,16 @@ namespace CefSharp.MinimalExample.WinForms
                         index = 13;
                     else if (indexer == 5)
                         index = 15;
-                    resources.Add(new Crop(index, int.Parse(m.Groups[1].ToString())));
+                    resources.Add(new ResourceField()
+                    {
+                        Type = "Crop",
+                        Index = index,
+                        ResLevel = int.Parse(m.Groups[1].ToString())
+                    });
                     indexer++;
                 }
             }
+
             return resources;
         }
     }

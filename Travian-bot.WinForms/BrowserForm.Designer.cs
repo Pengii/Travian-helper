@@ -40,6 +40,17 @@
             this.toolStripContainer = new System.Windows.Forms.ToolStripContainer();
             this.textBoxLogs = new System.Windows.Forms.TextBox();
             this.tabOptions = new System.Windows.Forms.TabPage();
+            this.buttonStart = new System.Windows.Forms.Button();
+            this.buttonStop = new System.Windows.Forms.Button();
+            this.buttonSave = new System.Windows.Forms.Button();
+            this.groupBoxLogin = new System.Windows.Forms.GroupBox();
+            this.buttonLogin = new System.Windows.Forms.Button();
+            this.textBoxPw = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.textBoxUser = new System.Windows.Forms.TextBox();
+            this.groupBoxBuilding = new System.Windows.Forms.GroupBox();
+            this.autoBuild = new System.Windows.Forms.CheckBox();
             this.tabControl.SuspendLayout();
             this.tabMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -47,6 +58,9 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.toolStripContainer.SuspendLayout();
+            this.tabOptions.SuspendLayout();
+            this.groupBoxLogin.SuspendLayout();
+            this.groupBoxBuilding.SuspendLayout();
             this.SuspendLayout();
             // 
             // BottomToolStripPanel
@@ -159,6 +173,11 @@
             // 
             // tabOptions
             // 
+            this.tabOptions.Controls.Add(this.buttonStart);
+            this.tabOptions.Controls.Add(this.buttonStop);
+            this.tabOptions.Controls.Add(this.buttonSave);
+            this.tabOptions.Controls.Add(this.groupBoxLogin);
+            this.tabOptions.Controls.Add(this.groupBoxBuilding);
             this.tabOptions.Location = new System.Drawing.Point(4, 22);
             this.tabOptions.Name = "tabOptions";
             this.tabOptions.Padding = new System.Windows.Forms.Padding(3);
@@ -166,6 +185,112 @@
             this.tabOptions.TabIndex = 1;
             this.tabOptions.Text = "Options";
             this.tabOptions.UseVisualStyleBackColor = true;
+            // 
+            // buttonStart
+            // 
+            this.buttonStart.Location = new System.Drawing.Point(162, 149);
+            this.buttonStart.Name = "buttonStart";
+            this.buttonStart.Size = new System.Drawing.Size(75, 23);
+            this.buttonStart.TabIndex = 7;
+            this.buttonStart.Text = "Start";
+            this.buttonStart.UseVisualStyleBackColor = true;
+            this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
+            // 
+            // buttonStop
+            // 
+            this.buttonStop.Location = new System.Drawing.Point(281, 149);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Size = new System.Drawing.Size(75, 23);
+            this.buttonStop.TabIndex = 6;
+            this.buttonStop.Text = "Stop";
+            this.buttonStop.UseVisualStyleBackColor = true;
+            // 
+            // buttonSave
+            // 
+            this.buttonSave.Location = new System.Drawing.Point(9, 223);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(347, 33);
+            this.buttonSave.TabIndex = 5;
+            this.buttonSave.Text = "Save";
+            this.buttonSave.UseVisualStyleBackColor = true;
+            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+            // 
+            // groupBoxLogin
+            // 
+            this.groupBoxLogin.Controls.Add(this.buttonLogin);
+            this.groupBoxLogin.Controls.Add(this.textBoxPw);
+            this.groupBoxLogin.Controls.Add(this.label2);
+            this.groupBoxLogin.Controls.Add(this.label1);
+            this.groupBoxLogin.Controls.Add(this.textBoxUser);
+            this.groupBoxLogin.Location = new System.Drawing.Point(9, 4);
+            this.groupBoxLogin.Name = "groupBoxLogin";
+            this.groupBoxLogin.Size = new System.Drawing.Size(141, 197);
+            this.groupBoxLogin.TabIndex = 4;
+            this.groupBoxLogin.TabStop = false;
+            this.groupBoxLogin.Text = "Login";
+            // 
+            // buttonLogin
+            // 
+            this.buttonLogin.Location = new System.Drawing.Point(9, 145);
+            this.buttonLogin.Name = "buttonLogin";
+            this.buttonLogin.Size = new System.Drawing.Size(75, 23);
+            this.buttonLogin.TabIndex = 4;
+            this.buttonLogin.Text = "Login";
+            this.buttonLogin.UseVisualStyleBackColor = true;
+            this.buttonLogin.Click += new System.EventHandler(this.buttonSave_Click);
+            // 
+            // textBoxPw
+            // 
+            this.textBoxPw.Location = new System.Drawing.Point(9, 102);
+            this.textBoxPw.Name = "textBoxPw";
+            this.textBoxPw.Size = new System.Drawing.Size(100, 20);
+            this.textBoxPw.TabIndex = 3;
+            this.textBoxPw.UseSystemPasswordChar = true;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(8, 86);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(56, 13);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Password:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 24);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(58, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Username:";
+            // 
+            // textBoxUser
+            // 
+            this.textBoxUser.Location = new System.Drawing.Point(9, 42);
+            this.textBoxUser.Name = "textBoxUser";
+            this.textBoxUser.Size = new System.Drawing.Size(100, 20);
+            this.textBoxUser.TabIndex = 0;
+            // 
+            // groupBoxBuilding
+            // 
+            this.groupBoxBuilding.Controls.Add(this.autoBuild);
+            this.groupBoxBuilding.Location = new System.Drawing.Point(156, 6);
+            this.groupBoxBuilding.Name = "groupBoxBuilding";
+            this.groupBoxBuilding.Size = new System.Drawing.Size(200, 100);
+            this.groupBoxBuilding.TabIndex = 3;
+            this.groupBoxBuilding.TabStop = false;
+            this.groupBoxBuilding.Text = "Building settings";
+            // 
+            // autoBuild
+            // 
+            this.autoBuild.AutoSize = true;
+            this.autoBuild.Location = new System.Drawing.Point(6, 19);
+            this.autoBuild.Name = "autoBuild";
+            this.autoBuild.Size = new System.Drawing.Size(87, 17);
+            this.autoBuild.TabIndex = 2;
+            this.autoBuild.Text = "Auto building";
+            this.autoBuild.UseVisualStyleBackColor = true;
             // 
             // BrowserForm
             // 
@@ -188,6 +313,11 @@
             this.splitContainer1.ResumeLayout(false);
             this.toolStripContainer.ResumeLayout(false);
             this.toolStripContainer.PerformLayout();
+            this.tabOptions.ResumeLayout(false);
+            this.groupBoxLogin.ResumeLayout(false);
+            this.groupBoxLogin.PerformLayout();
+            this.groupBoxBuilding.ResumeLayout(false);
+            this.groupBoxBuilding.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -204,5 +334,16 @@
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStripContainer toolStripContainer;
         private System.Windows.Forms.TextBox textBoxLogs;
+        private System.Windows.Forms.GroupBox groupBoxBuilding;
+        private System.Windows.Forms.CheckBox autoBuild;
+        private System.Windows.Forms.GroupBox groupBoxLogin;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textBoxUser;
+        private System.Windows.Forms.TextBox textBoxPw;
+        private System.Windows.Forms.Button buttonLogin;
+        private System.Windows.Forms.Button buttonSave;
+        private System.Windows.Forms.Button buttonStart;
+        private System.Windows.Forms.Button buttonStop;
     }
 }

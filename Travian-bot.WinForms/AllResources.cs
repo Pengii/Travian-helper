@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace CefSharp.MinimalExample.WinForms
 {
-    public interface IResource
+    public class AllResources
     {
-        int Index { get; }
-        int ResLevel { get; }
+        public List<ResourceField> ResourceData { get; set; }
     }
 }
